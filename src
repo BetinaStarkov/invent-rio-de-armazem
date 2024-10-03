@@ -1,0 +1,83 @@
+-- Criar o banco de dados
+drop database InventarioArmazem;
+CREATE DATABASE InventarioArmazem;
+
+-- Usar o banco de dados criado
+USE InventarioArmazem;
+
+-- Criar a tabela de Categorias
+CREATE TABLE Categorias (
+    CategoriaID INT AUTO_INCREMENT PRIMARY KEY,
+    Nome VARCHAR(100) NOT NULL
+);
+
+-- Criar a tabela de Fornecedores
+CREATE TABLE Fornecedores (
+    FornecedorID INT AUTO_INCREMENT PRIMARY KEY,
+    Nome VARCHAR(100) NOT NULL,
+    Contato VARCHAR(100),
+    Endereco TEXT
+);
+
+-- Criar a tabela de Produtos
+CREATE TABLE Produtos (
+    ProdutoID INT AUTO_INCREMENT PRIMARY KEY,
+    Nome VARCHAR(100) NOT NULL,
+    Descricao TEXT,
+    Preco DECIMAL(10, 2) NOT NULL,
+    QuantidadeEmEstoque INT NOT NULL,
+    CategoriaID INT,
+    FOREIGN KEY (CategoriaID) REFERENCES Categorias(CategoriaID)
+);
+
+-- Inserir dados na tabela de Categorias
+INSERT INTO Categorias (Nome) VALUES
+('Eletrônicos'),
+('Roupas'),
+('Alimentos');
+
+-- Inserir dados na tabela de Fornecedores
+INSERT INTO Fornecedores (Nome, Contato, Endereco) VALUES
+('Fornecedor A', 'contato@fornecedora.com', 'Rua 1, Cidade A'),
+('Fornecedor B', 'contato@fornecedorb.com', 'Rua 2, Cidade B'),
+('Fornecedor C', 'contato@fornecedorC.com', 'Rua 3, Cidade C');
+
+-- Inserir dados na tabela de Produtos
+INSERT INTO Produtos (Nome, Descricao, Preco, QuantidadeEmEstoque, CategoriaID) VALUES
+('Smartphone', 'Smartphone com tela de 6 polegadas', 1200.00, 10, 1),
+('Camisa', 'Camisa de algodão', 80.00, 20, 2),
+('Arroz', 'Pacote de 5kg de arroz', 25.50, 50, 3),
+('Televisão', 'Televisão 4K de 55 polegadas', 3500.00, 5, 1),
+('Calça', 'Calça jeans', 120.00, 15, 2);
+
+-- Consultar todos os produtos disponíveis em estoque
+SELECT * FROM Produtos WHERE QuantidadeEmEstoque > 0;
+
+-- Consultar produtos de uma categoria específica (por exemplo, Roupas)
+SELECT * FROM Produtos WHERE CategoriaID = (SELECT CategoriaID FROM Categorias WHERE Nome = 'Roupas');
+
+-- Exibir informações sobre fornecedores que fornecem produtos acima de um determinado preço (por exemplo, 100)
+SELECT F.Nome, F.Contato, F.Endereco FROM Fornecedores F
+JOIN Produtos P ON F.FornecedorID = P.ProdutoID
+WHERE P.Preco > 100;
+
+-- Atualizar o preço de um produto específico (por exemplo, 'Smartphone') usando um JOIN
+UPDATE Produtos P
+JOIN (SELECT ProdutoID FROM Produtos WHERE Nome = 'Smartphone') AS subquery
+ON P.ProdutoID = subquery.ProdutoID
+SET P.Preco = 1150.00;
+
+-- Modificar a descrição de uma categoria existente (por exemplo, 'Eletrônicos')
+UPDATE Categorias SET Nome = 'Dispositivos Eletrônicos' WHERE Nome = 'Eletrônicos';
+
+-- Alterar o endereço de um fornecedor específico (por exemplo, 'Fornecedor A')
+UPDATE Fornecedores SET Endereco = 'Nova Rua 1, Cidade A' WHERE Nome = 'Fornecedor A';
+
+-- Remover um produto do inventário (por exemplo, 'Camisa')
+DELETE FROM Produtos WHERE Nome = 'Camisa';
+
+-- Excluir uma categoria (por exemplo, 'Alimentos') e garantir que os produtos associados sejam atualizados ou removidos
+DELETE FROM Categorias WHERE Nome = 'Alimentos';
+
+-- Apagar um fornecedor (por exemplo, 'Fornecedor B') garantindo que não haja produtos associados
+DELETE FROM Fornecedores WHERE Nome = 'Fornecedor B';
